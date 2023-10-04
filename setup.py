@@ -61,9 +61,9 @@ setup(
         ]
     },
     package_dir={"api": "api", "lva2": "lva2"},
-    packages=["api", "lva2"], #find_packages("api"),
-    #py_modules=[splitext(basename(path))[0] for path in glob("api/*.py")],
+    packages=["api", "lva2"],  # find_packages("api"),
+    # py_modules=[splitext(basename(path))[0] for path in glob("api/*.py")],
     include_package_data=True,
-    scripts=['manage.py']
+    scripts=["manage.py"]
     # TODO Add entry points.
 )
