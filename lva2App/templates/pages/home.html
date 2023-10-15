@@ -1,0 +1,62 @@
+<!-- lva2App/templates/pages/hours.html -->
+
+{% extends "base.html" %} {% load static %} {% block page_content %}
+
+<!-- Sets the Active tab-->
+<script src="{% static 'navbar-active.js' %}">
+    document.addEventListener('DOMContentLoaded', function () {
+    // Call setActiveNavItem here to set the initial active navbar item.
+    setActiveNavItem('navbar-home');
+  });
+</script>
+
+<label for="search-field">Search Members:</label>
+<input
+  type="text"
+  id="search-field"
+  placeholder="Enter at least 3 characters..."
+/>
+<ul id="search-results"></ul>
+
+<script>
+  const searchField = document.getElementById("search-field");
+  const searchResults = document.getElementById("search-results");
+
+  searchField.addEventListener("input", function () {
+    const searchTerm = searchField.value.trim();
+
+    // Check if the search term has at least 3 characters
+    if (searchTerm.length >= 3) {
+      // Fetch data from the API
+      fetch(`http://127.0.0.1:8000/api/member/?search=${searchTerm}`)
+        .then((response) => response.json())
+        .then((data) => {
+          // Clear previous search results
+          searchResults.innerHTML = "";
+
+          // Populate the search results with data from the API
+          data.forEach((member) => {
+            // Create a link element
+            const link = document.createElement("a");
+            link.href = `http://127.0.0.1:8000/member-hour/${member.badge_num}`;
+            link.textContent = `${member.first_name} ${member.last_name} (#${member.badge_num})`;
+
+            // Create an li element and append the link to it
+            const li = document.createElement("li");
+            li.appendChild(link);
+
+            // Append the li element to the search results
+            searchResults.appendChild(li);
+          });
+        })
+        .catch((error) => {
+          console.error("Error fetching data:", error);
+        });
+    } else {
+      // Clear the search results if the search term is less than 3 characters
+      searchResults.innerHTML = "";
+    }
+  });
+</script>
+
+{% endblock page_content %}

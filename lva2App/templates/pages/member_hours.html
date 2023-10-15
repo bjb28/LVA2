@@ -1,0 +1,649 @@
+<!-- lva2App/templates/pages/member_hours.html -->
+
+{% extends "base.html" %} {% load static %} {% block page_content %}
+
+<!-- Sets the Active tab-->
+<script src="{% static 'navbar-active.js' %}"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Call setActiveNavItem here to set the initial active navbar item.
+    setActiveNavItem("navbar-member-hours");
+  });
+</script>
+
+<div class="container justify-content-center">
+  <div class="row justify-content-center">
+    <div id="members-container" class="col-md-4 rounded shadow p-3 mb-4">
+      <p id="member-header" class="text-center h3"></p>
+      <p id="month-year" class="text-center h4"></p>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="container mb-4 col-md-6 rounded shadow p-3">
+        <table
+          id="member-hours-table"
+          class="table table-bordered table-striped"
+        >
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Stand By</th>
+              <th>Collateral Duty</th>
+              <th>Sleep In</th>
+            </tr>
+          </thead>
+          <tbody id="member-hours-tbody">
+            <!-- Table rows go here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="row justify-content-center">
+    <div id="input-container" class="col-md-4 rounded shadow p-3">
+      <div id="dropdown-container">
+        <label for="select-min-hours">Select a Task:</label>
+        <select id="select-min-hours">
+          <option value="" disabled selected>Select a task</option>
+        </select>
+        <br /><br />
+      </div>
+
+      <div id="form-container" style="display: none">
+        <form id="task-form">
+          {% csrf_token %}
+          <div id="time-container" style="display: none">
+            <!-- Start Time picker -->
+            <label for="start-date-picker">Start:</label>
+            <input
+              type="date"
+              id="start-date-picker"
+              name="start-date-picker"
+              required
+            />
+            <select id="start-hour-picker" name="hour-picker" required>
+              <!-- 00-23 Hour picker -->
+              <option value="00">00</option>
+              <option value="01">01</option>
+              <option value="02">02</option>
+              <option value="03">03</option>
+              <option value="04">04</option>
+              <option value="05">05</option>
+              <option value="06">06</option>
+              <option value="07">07</option>
+              <option value="08">08</option>
+              <option value="09">09</option>
+              <option value="10">10</option>
+              <option value="11">11</option>
+              <option value="12">12</option>
+              <option value="13">13</option>
+              <option value="14">14</option>
+              <option value="15">15</option>
+              <option value="16">16</option>
+              <option value="17">17</option>
+              <option value="18">18</option>
+              <option value="19">19</option>
+              <option value="20">20</option>
+              <option value="21">21</option>
+              <option value="22">22</option>
+              <option value="23">23</option>
+            </select>
+            <select id="start-minute-picker" name="minute-picker" required>
+              <!-- Add options for 15-minute increments -->
+              <option value="00">00</option>
+              <option value="15">15</option>
+              <option value="30">30</option>
+              <option value="45">45</option></select
+            ><br /><br />
+            <!-- End Time picker -->
+            <label for="end-date-picker">End:</label>
+            <input
+              type="date"
+              id="end-date-picker"
+              name="end-date-picker"
+              required
+            />
+            <select id="end-hour-picker" name="hour-picker" required>
+              <!-- 00-23 Hour picker -->
+              <option value="00">00</option>
+              <option value="01">01</option>
+              <option value="02">02</option>
+              <option value="03">03</option>
+              <option value="04">04</option>
+              <option value="05">05</option>
+              <option value="06">06</option>
+              <option value="07">07</option>
+              <option value="08">08</option>
+              <option value="09">09</option>
+              <option value="10">10</option>
+              <option value="11">11</option>
+              <option value="12">12</option>
+              <option value="13">13</option>
+              <option value="14">14</option>
+              <option value="15">15</option>
+              <option value="16">16</option>
+              <option value="17">17</option>
+              <option value="18">18</option>
+              <option value="19">19</option>
+              <option value="20">20</option>
+              <option value="21">21</option>
+              <option value="22">22</option>
+              <option value="23">23</option>
+            </select>
+            <select id="end-minute-picker" name="minute-picker" required>
+              <!-- Add options for 15-minute increments -->
+              <option value="00">00</option>
+              <option value="15">15</option>
+              <option value="30">30</option>
+              <option value="45">45</option></select
+            ><br /><br />
+          </div>
+
+          <!-- Additional field for Collateral Duty -->
+
+          <div id="description-container" style="display: none">
+            <label for="select-committee">Select a Committee:</label>
+            <select id="select-committee">
+              <option value="" disabled selected>Select a Committee</option>
+            </select>
+            <br /><br />
+            <label for="description">Description:</label>
+            <input
+              type="text"
+              id="description"
+              name="description"
+            /><br /><br />
+          </div>
+
+          <div id="date-container" style="display: none">
+            <label for="date-picker">Select a Date:</label>
+            <input
+              type="date"
+              id="date-picker"
+              name="date-picker"
+            /><br /><br />
+          </div>
+
+          <!-- Error message container -->
+          <div id="error-container" style="color: red"></div>
+
+          <input type="submit" value="Submit" />
+          <button type="button" id="cancel-button">Cancel</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  let hourTypesData = null;
+  let memberData = null;
+  let committeeData = null;
+  let memberHours = null;
+
+  async function getHourType() {
+      var url = 'http://127.0.0.1:8000/api/hour-type';
+
+      try {
+          const response = await fetch(url);
+          const data = await response.json();
+          return data;
+      } catch (error) {
+          console.log(error);
+      }
+  }
+
+  async function getCommittee() {
+      var url = 'http://127.0.0.1:8000/api/committee';
+
+      try {
+          const response = await fetch(url);
+          const data = await response.json();
+          return data;
+      } catch (error) {
+          console.log(error);
+      }
+  }
+
+  async function getMember() {
+                    var url = `http://127.0.0.1:8000/api/member/{{ badge_num }}/`
+
+                    try {
+                        const response = await fetch(url);
+                        const data = await response.json();
+                        return data;
+                    } catch (error) {
+                        console.log(error);
+                    }
+                }
+
+  async function getMemberHours(year="", month="") {
+                  var url = `http://127.0.0.1:8000/api/member/{{ badge_num }}/get_hours/?month=${month}&year=${year}`
+                  try {
+                      const response = await fetch(url);
+                      const data = await response.json();
+                      return data;
+                  } catch (error) {
+                      console.log(error);
+                  }
+                }
+
+  // Function to populate the Hour Type Dropdown
+  function populateDropdown() {
+
+      var select = document.getElementById("select-min-hours");
+
+      hourTypesData.forEach(function (committee) {
+          var option = document.createElement("option");
+          option.value = committee.name;
+          option.text = committee.name;
+          select.appendChild(option);
+      });
+
+  }
+
+  // Function to populate the Committees.
+  function populateCommittees() {
+      var select = document.getElementById("select-committee");
+
+      committeeData.forEach(function (hours) {
+          var option = document.createElement("option");
+          option.value = hours.name;
+          option.text = hours.name;
+          select.appendChild(option);
+      });
+  }
+
+  // Event listener function'
+  function addEventListener(){
+      console.log(hourTypesData)
+      document.getElementById("select-min-hours").addEventListener("change", function () {
+          var selectedTask = this.value;
+          var formContainer = document.getElementById("form-container");
+          var timeContainer = document.getElementById("time-container");
+          var descriptionContainer = document.getElementById("description-container");
+          var datePickerContainer = document.getElementById("date-container");
+
+          if (selectedTask === "Stand By" || selectedTask === "Collateral Duty") {
+              formContainer.style.display = "block";
+              timeContainer.style.display = "block";
+          } else {
+              formContainer.style.display = "none";
+              // Clear the description field and hide it
+              descriptionContainer.value = "";
+              descriptionContainer.style.display = "none";
+              formContainer.style.display = "none";
+              timeContainer.style.display = "none";
+          }
+
+          // Show the description field only for "Collateral Duty"
+          if (selectedTask === "Collateral Duty") {
+            descriptionContainer.style.display = "block";
+          } else {
+            descriptionContainer.style.display = "none";
+          }
+
+          if (selectedTask === "Sleep In") {
+            formContainer.style.display = "block";
+            datePickerContainer.style.display = "block";
+          } else {
+            datePickerContainer.style.display = "none";
+          }
+
+      });
+  }
+
+  function addSubmitEvent(){
+    document.getElementById("task-form").addEventListener("submit", function (e) {
+          e.preventDefault();
+          var selectedTask = document.getElementById("select-min-hours").value;
+          var badgeNumber = {{ badge_num }};
+          var csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
+          var formData = {
+            type: selectedTask,
+            badge_num: badgeNumber,
+          };
+
+          if (selectedTask === "Sleep In"){
+            formData.date = document.getElementById("date-picker").value;
+            formData.type = "Sleep In";
+          } else if (selectedTask === "Stand By") {
+            formDate.type =  "Stand By";
+            var start_date = document.getElementById("start-date-picker").value;
+            var start_hour = document.getElementById("start-hour-picker").value;
+            var start_minute = document.getElementById("start-minute-picker").value;
+
+            // Combine date, hour, and minute into a single datetime string
+            formData.start_time = `${date}T${hour}:${minute}`;
+
+            var end_date = document.getElementById("end-date-picker").value;
+            var end_hour = document.getElementById("end-hour-picker").value;
+            var end_minute = document.getElementById("end-minute-picker").value;
+
+            // Combine date, hour, and minute into a single datetime string
+            formData.end_time = `${date}T${hour}:${minute}`;
+
+
+          } else if (selectedTask === "Collateral Duty"){
+            formDate.type =  "Stand By";
+            formData.committee = document.getElementById("select-committee").value;
+            formData.description = document.getElementById("description").value;
+
+            var start_date = document.getElementById("start-date-picker").value;
+            var start_hour = document.getElementById("start-hour-picker").value;
+            var start_minute = document.getElementById("start-minute-picker").value;
+
+            // Combine date, hour, and minute into a single datetime string
+            formData.start_time = `${date}T${hour}:${minute}`;
+
+            var end_date = document.getElementById("end-date-picker").value;
+            var end_hour = document.getElementById("end-hour-picker").value;
+            var end_minute = document.getElementById("end-minute-picker").value;
+
+            // Combine date, hour, and minute into a single datetime string
+            formData.end_time = `${date}T${hour}:${minute}`;
+
+          }
+
+          console.log(formData)
+          // Clears and sets up to provide an error.
+          var errorContainer = document.getElementById("error-container");
+          errorContainer.innerHTML = "";
+
+          // Perform a POST request with the form data as JSON to the selected URL
+          fetch(`http://127.0.0.1:8000/api/${selectedTask.toLowerCase().replace(/ /g, "-")}/`, {
+              method: "POST",
+              headers: {
+                  "Content-Type": "application/json",
+                  'X-CSRFToken': csrfToken
+              },
+              body: JSON.stringify(formData)
+          })
+          .then(response => {
+              if (!response.ok) {
+                  if (response.status === 400) {
+                      return response.json().then(errorData => {
+
+                          throw new Error(errorData.message);
+                      });
+                      throw new Error("Error in request.");
+                  }
+              }
+              return response.json()})
+          .then(data => {
+              // Handle the response data as needed
+              var min_hours = null;
+              if (!data.losap_valid) {
+                  hourTypesData.forEach(function (hour_type) {
+                      if (hour_type.name === data.type)
+                      {
+                          min_hours = hour_type.min_hours;
+                      }
+                  });
+
+                  errorContainer.textContent = `Warning: This is less than ${min_hours} hour minimum required for LOSAP Credit.`
+              }
+              console.log("POST Response:", data);
+              location.reload();
+          })
+          .catch(error => {
+              errorContainer.textContent = "Error: " + error.message;
+              console.error("Error:", error);
+          });
+      });
+  }
+
+  function addCancelButton(){
+    // Add an event listener for the "Cancel" button
+    document.getElementById("cancel-button").addEventListener("click", function () {
+    // Reset the form to its original state
+    document.getElementById("task-form").reset();
+
+    // Hide any error messages
+    document.getElementById("error-container").textContent = "";
+
+    // Reset the visibility of form containers
+    document.getElementById("form-container").style.display = "none";
+    document.getElementById("time-container").style.display = "none";
+    document.getElementById("description-container").style.display = "none";
+    document.getElementById("date-container").style.display = "none";
+  });
+  }
+
+  // Function to fill out the table with JSON data
+  function fillMemberHoursTable() {
+  const tableBody = document.querySelector("#member-hours-table tbody");
+
+  // Create an object to group data by date
+  const groupedData = {};
+
+  memberHours.forEach((data) => {
+  if (data.date_sleepin) {
+  // For Sleep In entries, group by date
+  const date = new Date(data.date_sleepin).toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "2-digit",
+  });
+  if (!groupedData[date]) {
+  groupedData[date] = {
+  date: `${formatDate(date)}`,
+  standBy: [],
+  collateralDuty: [],
+  sleepIn: 'Yes',
+  id: data.id_sleepin,
+  };
+  }
+  } else if (data.start_time_collateralduty && data.end_time_collateralduty) {
+  // For Collateral Duty entries, group by date and add to the Collateral Duty array
+  const date = new Date(data.start_time_collateralduty).toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "2-digit",
+  });
+  if (!groupedData[date]) {
+  groupedData[date] = {
+  date: `${formatDate(date)}`,
+  standBy: [],
+  collateralDuty: [],
+  sleepIn: "",
+  id: data.id_collateralduty,
+  };
+  }
+  groupedData[date].collateralDuty.push({
+  time: `${formatTime(data.start_time_collateralduty)} - ${formatTime(data.end_time_collateralduty)}`,
+  id: data.id_collateralduty, // Add the id for delete link
+  });
+  } else if (data.start_time_standby && data.end_time_standby) {
+  // For Stand By entries, group by date and add to the Stand By array
+  const date = new Date(data.start_time_standby).toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "2-digit",
+  });
+  if (!groupedData[date]) {
+  groupedData[date] = {
+  date: `${formatDate(date)}`,
+  standBy: [],
+  collateralDuty: [],
+  sleepIn: "",
+  id: data.id_standby,
+  };
+  }
+  groupedData[date].standBy.push({
+  time: `${formatTime(data.start_time_standby)} - ${formatTime(data.end_time_standby)}`,
+  id: data.id_standby, // Add the id for delete link
+  });
+  }
+  });
+
+  // Iterate through the grouped data and create table rows
+  Object.values(groupedData).forEach((entry) => {
+  const row = document.createElement("tr");
+  const dateCell = document.createElement("td");
+  const standByCell = document.createElement("td");
+  const collateralDutyCell = document.createElement("td");
+  const sleepInCell = document.createElement("td");
+
+  dateCell.textContent = entry.date;
+
+  // Create a delete link for Stand By entries
+  if (entry.standBy.length > 0) {
+  standByCell.classList.add("action-cell");
+  const standByList = document.createElement("ul");
+  entry.standBy.forEach((standByEntry) => {
+  const listItem = document.createElement("li");
+  listItem.innerHTML = `${standByEntry.time} <a href="http://127.0.0.1:8000/api/standby/${standByEntry.id}" class="delete-link" data-type="standby" data-id="${standByEntry.id}">(Delete)</a>`;
+  standByList.appendChild(listItem);
+  });
+  standByCell.appendChild(standByList);
+  }
+
+  // Create a delete link for Collateral Duty entries
+  if (entry.collateralDuty.length > 0) {
+  collateralDutyCell.classList.add("action-cell");
+  const collateralDutyList = document.createElement("ul");
+  entry.collateralDuty.forEach((collateralDutyEntry) => {
+  const listItem = document.createElement("li");
+  listItem.innerHTML = `${collateralDutyEntry.time} <a href="http://127.0.0.1:8000/api/collateralduty/${collateralDutyEntry.id}" class="delete-link" data-type="collateralduty" data-id="${collateralDutyEntry.id}">(Delete)</a>`;
+  collateralDutyList.appendChild(listItem);
+  });
+  collateralDutyCell.appendChild(collateralDutyList);
+  }
+
+  // Create a delete link for Sleep In entries
+  if (entry.sleepIn === 'Yes') {
+  sleepInCell.classList.add("action-cell");
+  sleepInCell.innerHTML = `Yes <a href="http://127.0.0.1:8000/api/sleepin/${entry.id}" class="delete-link" data-type="sleepin" data-id="${entry.id}">(Delete)</a>`;
+  } else {
+  sleepInCell.textContent = entry.sleepIn;
+  }
+
+  row.appendChild(dateCell);
+  row.appendChild(standByCell);
+  row.appendChild(collateralDutyCell);
+  row.appendChild(sleepInCell);
+
+  tableBody.appendChild(row);
+  });
+
+  // Add click event listeners for delete links
+  const deleteLinks = document.querySelectorAll(".delete-link");
+  deleteLinks.forEach((link) => {
+  link.addEventListener("click", (event) => {
+  event.preventDefault();
+  const confirmed = confirm("Are you sure you want to delete this entry?");
+  if (confirmed) {
+  const type = link.getAttribute("data-type");
+  const id = link.getAttribute("data-id");
+  deleteEntry(type, id);
+  }
+  });
+  });
+  }
+
+  function deleteEntry(type, id) {
+  // Perform the DELETE request using type and id
+  const url = `http://127.0.0.1:8000/api/${type}/${id}`;
+  fetch(url, {
+    method: "DELETE",
+  })
+    .then((response) => {
+      if (response.ok) {
+        // Handle success (e.g., remove the row from the table)
+        // You may also want to update the UI to reflect the deletion
+        console.log(`${type} entry with ID ${id} has been deleted.`);
+      } else {
+        console.error(`Error deleting ${type} entry with ID ${id}.`);
+      }
+    })
+    .catch((error) => {
+      console.error(`Error deleting ${type} entry: ${error}`);
+    });
+  }
+
+  // Function to format time (HH:mm)
+  function formatTime(dateTimeString) {
+    const options = {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false, // Use 24-hour format
+    };
+    const timeString = new Date(dateTimeString).toLocaleTimeString("en-US", options);
+    return timeString.replace(":", "");
+  }
+
+  function formatDate(dateString) {
+      const options = { weekday: "short", day: "numeric", month: "short" };
+      const formattedDate = new Date(dateString).toLocaleDateString("en-US", options);
+      return formattedDate;
+    }
+
+  async function buildMemberData(){
+
+    // Set the members name and badge number
+    var member_header = document.getElementById('member-header');
+      member_header.innerHTML = `${memberData.last_name}, ${memberData.first_name} (#${memberData.badge_num})`
+
+    // Set the Month
+    var month_year = document.getElementById('month-year');
+    // if the month is blank, this statment will be false so it reaches the else.
+    var months = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+
+    if ({% if month %} true {% else %} false {% endif %}) {
+      var month_in = parseInt(' {{month}}') - 1;
+      month_year.innerHTML = months[month_in];
+    } else {
+      var currentDate = new Date();
+      month_year.innerHTML = months[currentDate.getMonth()];
+    }
+
+    // Set the Year
+    // if the month is blank, this statment will be false so it reaches the else.
+    if ({% if year %} true {% else %} false {% endif %}) {
+      month_year.innerHTML += ` {{ year }}`;
+    } else {
+      var currentDate = new Date();
+      month_year.innerHTML += ` ${currentDate.getFullYear()}`;
+    }
+    fillMemberHoursTable()
+  }
+
+  async function pageLoad(){
+    if (!hourTypesData) {
+    // Fetch the hour types data and store it in the global variable
+    hourTypesData = await getHourType();
+    }
+    if (!memberData) {
+    // Fetch the hour types data and store it in the global variable
+    memberData = await getMember();
+    console.log(memberData)
+    }
+    if (!committeeData) {
+    // Fetch the hour types data and store it in the global variable
+    committeeData = await getCommittee();
+    console.log(committeeData)
+    }
+    if (!memberHours) {
+    // Fetch the hour types data and store it in the global variable
+    memberHours = await getMemberHours(year="{{year}}", month="{{month}}");
+    console.log(memberHours)
+    }
+
+    buildMemberData();
+    populateDropdown();
+    populateCommittees();
+    addEventListener();
+    addSubmitEvent();
+    addCancelButton()
+  }
+
+  // Call the function to populate the dropdown
+  pageLoad();
+</script>
+
+{% endblock page_content %}
