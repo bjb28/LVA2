@@ -46,6 +46,7 @@ setup(
     install_requires=[
         "django >= 3.1.5",
         "djangorestframework >= 3.14.0",
+        "python-dateutil",
     ],
     extras_require={
         "dev": [
@@ -61,9 +62,7 @@ setup(
         ]
     },
     package_dir={"api": "api", "lva2": "lva2"},
-    packages=["api", "lva2"],  # find_packages("api"),
-    # py_modules=[splitext(basename(path))[0] for path in glob("api/*.py")],
+    packages=["api", "lva2"],
     include_package_data=True,
-    scripts=["manage.py"]
-    # TODO Add entry points.
+    scripts=["manage.py"],
 )
