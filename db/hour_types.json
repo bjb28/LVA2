@@ -1,0 +1,23 @@
+[
+  {
+    "fields": {
+      "min_hours": 4
+    },
+    "model": "api.hourtype",
+    "pk": "Collateral Duty"
+  },
+  {
+    "fields": {
+      "min_hours": 12
+    },
+    "model": "api.hourtype",
+    "pk": "Sleep In"
+  },
+  {
+    "fields": {
+      "min_hours": 4
+    },
+    "model": "api.hourtype",
+    "pk": "Stand By"
+  }
+]

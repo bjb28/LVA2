@@ -1,0 +1,106 @@
+[
+  {
+    "fields": {
+      "is_officer": 1,
+      "name": "Asst. Chief"
+    },
+    "model": "api.rank",
+    "pk": "A/Ch"
+  },
+  {
+    "fields": {
+      "is_officer": 0,
+      "name": "Admin"
+    },
+    "model": "api.rank",
+    "pk": "AD"
+  },
+  {
+    "fields": {
+      "is_officer": 0,
+      "name": "Ambulance Technician"
+    },
+    "model": "api.rank",
+    "pk": "AT"
+  },
+  {
+    "fields": {
+      "is_officer": 0,
+      "name": "Ambulance Technician Driver Attendant"
+    },
+    "model": "api.rank",
+    "pk": "ATDA"
+  },
+  {
+    "fields": {
+      "is_officer": 1,
+      "name": "Captain"
+    },
+    "model": "api.rank",
+    "pk": "Capt"
+  },
+  {
+    "fields": {
+      "is_officer": 1,
+      "name": "Chief"
+    },
+    "model": "api.rank",
+    "pk": "Ch"
+  },
+  {
+    "fields": {
+      "is_officer": 1,
+      "name": "EMS Coordinator"
+    },
+    "model": "api.rank",
+    "pk": "EMS"
+  },
+  {
+    "fields": {
+      "is_officer": 0,
+      "name": "Fire Apparatus Driver Operator"
+    },
+    "model": "api.rank",
+    "pk": "FADO"
+  },
+  {
+    "fields": {
+      "is_officer": 0,
+      "name": "FireFighter 1"
+    },
+    "model": "api.rank",
+    "pk": "FFI"
+  },
+  {
+    "fields": {
+      "is_officer": 0,
+      "name": "FireFighter 2"
+    },
+    "model": "api.rank",
+    "pk": "FFII"
+  },
+  {
+    "fields": {
+      "is_officer": 1,
+      "name": "Lieutenant"
+    },
+    "model": "api.rank",
+    "pk": "Lt"
+  },
+  {
+    "fields": {
+      "is_officer": 0,
+      "name": "Probationary FireFighter"
+    },
+    "model": "api.rank",
+    "pk": "PFF"
+  },
+  {
+    "fields": {
+      "is_officer": 0,
+      "name": "Rank Pending"
+    },
+    "model": "api.rank",
+    "pk": "RP"
+  }
+]

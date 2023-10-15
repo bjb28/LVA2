@@ -1,0 +1,12 @@
+[
+  {
+    "fields": {},
+    "model": "api.committee",
+    "pk": "Information Technologies"
+  },
+  {
+    "fields": {},
+    "model": "api.committee",
+    "pk": "Membership"
+  }
+]

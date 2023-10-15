@@ -1,0 +1,63 @@
+<!-- lva2App/templates/pages/member_list.html -->
+
+{% extends "base.html" %} {% block page_content %}
+
+<script>
+  function getMembers() {
+    var url = "http://127.0.0.1:8000/api/member";
+    fetch(url)
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (data) {
+        displayMembers(data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+
+  function displayMembers(data) {
+    var member_list = document.getElementById("membersTable");
+    console.log(data);
+    data.forEach(function (member) {
+      var row = member_list.insertRow();
+      var badge_num_cell = row.insertCell(0);
+      var last_name_cell = row.insertCell(1);
+      var first_name_cell = row.insertCell(2);
+      var rank_cell = row.insertCell(3);
+
+      // Create a link element for the badge number
+      var badgeLink = document.createElement("a");
+      badgeLink.href = "member-info.html?badge_num=" + member.badge_num;
+      badgeLink.textContent = member.badge_num;
+
+      // Append the link to the cell
+      badge_num_cell.appendChild(badgeLink);
+
+      last_name_cell.innerHTML = member.last_name;
+      first_name_cell.innerHTML = member.first_name;
+      rank_cell.innerHTML = member.rank;
+    });
+    console.log("end");
+  }
+
+  getMembers();
+</script>
+
+<div id="member-list">
+  <table border="1">
+    <thead>
+      <tr>
+        <th>Badge Number</th>
+        <th>Last Name</th>
+        <th>First Name</th>
+        <th>Rank</th>
+      </tr>
+    </thead>
+    <tbody id="membersTable">
+      <!-- Table rows will be added dynamically using JavaScript -->
+    </tbody>
+  </table>
+</div>
+{% endblock page_content %}

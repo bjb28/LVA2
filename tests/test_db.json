@@ -1,0 +1,72 @@
+[
+  {
+    "fields": {
+      "box_area": "28-01",
+      "street_name": "Annapolis Rd",
+      "street_num": 1482
+    },
+    "model": "api.address"
+  },
+  {
+    "fields": {
+      "apt_num": "A",
+      "box_area": "28-05",
+      "street_name": "Main St",
+      "street_num": 1482
+    },
+    "model": "api.address"
+  },
+  {
+    "fields": {
+      "badge_num": 12345,
+      "committee": "Information Technologies",
+      "description": "Test",
+      "end_time": "2023-10-02T13:59:00Z",
+      "start_time": "2023-10-02T10:00:00Z",
+      "type": "Collateral Duty"
+    },
+    "model": "api.collateralduty",
+    "pk": 1
+  },
+  {
+    "fields": {
+      "badge_num": 12345,
+      "created": "2021-06-01T12:00:00-00:00",
+      "first_name": "John",
+      "last_name": "Doe",
+      "rank": "FFII",
+      "updated": "2021-06-01T12:00:00-00:00"
+    },
+    "model": "api.member"
+  },
+  {
+    "fields": {
+      "badge_num": 54321,
+      "created": "2021-06-01T12:00:00-00:00",
+      "first_name": "Jane",
+      "last_name": "Smith",
+      "rank": "Ch",
+      "updated": "2021-06-01T12:00:00-00:00"
+    },
+    "model": "api.member"
+  },
+  {
+    "fields": {
+      "badge_num": 12345,
+      "date": "2023-10-01T19:00:00Z",
+      "type": "Sleep In"
+    },
+    "model": "api.sleepin",
+    "pk": 1
+  },
+  {
+    "fields": {
+      "badge_num": 12345,
+      "end_time": "2023-10-03T13:59:00Z",
+      "start_time": "2023-10-03T10:00:00Z",
+      "type": "Stand By"
+    },
+    "model": "api.standby",
+    "pk": 1
+  }
+]

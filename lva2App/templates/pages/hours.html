@@ -1,0 +1,172 @@
+<!-- lva2App/templates/pages/hours.html -->
+
+{% extends "base.html" %} {% block page_content %}
+<script>
+  async function getHourType() {
+    var url = "http://127.0.0.1:8000/api/hour-type";
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  // Function to populate the dropdown list
+  async function populateDropdown() {
+    var data = await getHourType(); // Wait for the data to be fetched
+    var select = document.getElementById("select-min-hours");
+    console.log(data);
+
+    data.forEach(function (hours) {
+      var option = document.createElement("option");
+      option.value = hours.name;
+      option.text = hours.name;
+      select.appendChild(option);
+    });
+    addEventListener();
+  }
+
+  // Event listener function'
+  function addEventListener() {
+    document
+      .getElementById("select-min-hours")
+      .addEventListener("change", function () {
+        var selectedTask = this.value;
+        var formContainer = document.getElementById("form-container");
+        var timeContainer = document.getElementById("time-container");
+        var descriptionContainer = document.getElementById(
+          "description-container",
+        );
+        var datePickerContainer = document.getElementById("date-container");
+
+        if (selectedTask === "Stand By" || selectedTask === "Collateral Duty") {
+          formContainer.style.display = "block";
+          timeContainer.style.display = "block";
+        } else {
+          formContainer.style.display = "none";
+          // Clear the description field and hide it
+          descriptionContainer.value = "";
+          descriptionContainer.style.display = "none";
+          formContainer.style.display = "none";
+          timeContainer.style.display = "none";
+        }
+
+        // Show the description field only for "Collateral Duty"
+        if (selectedTask === "Collateral Duty") {
+          descriptionContainer.style.display = "block";
+        } else {
+          descriptionContainer.style.display = "none";
+        }
+
+        if (selectedTask === "Sleep In") {
+          formContainer.style.display = "block";
+          datePickerContainer.style.display = "block";
+        } else {
+          datePickerContainer.style.display = "none";
+        }
+      });
+  }
+
+  function submitEvent() {
+    document
+      .getElementById("task-form")
+      .addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        var selectedTask = document.getElementById("select-min-hours").value;
+
+        if (selectedTask === "Sleep In") {
+          var formData = {
+            date: document.getElementById("date-picker").value,
+            type: "Sleep In",
+            badge_num: "12345",
+          };
+        } else if (selectedTask === "Stand By") {
+          var formData = {
+            startDateTime: document.getElementById("start-date-time").value,
+            endDateTime: document.getElementById("end-date-time").value,
+            type: "Stand By",
+            badge_num: "12345",
+          };
+        } else if (selectedTask === "Collateral Duty") {
+          var formData = {
+            description: document.getElementById("description").value,
+            startDateTime: document.getElementById("start-date-time").value,
+            endDateTime: document.getElementById("end-date-time").value,
+            type: "Stand By",
+            badge_num: "12345",
+          };
+        }
+
+        // Perform a POST request with the form data as JSON to the selected URL
+        fetch(
+          `http://127.0.0.1:8000/${selectedTask
+            .toLowerCase()
+            .replace(/ /g, "-")}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          },
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            // Handle the response data as needed
+            console.log("POST Response:", data);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      });
+  }
+
+  // Call the function to populate the dropdown
+  populateDropdown();
+</script>
+
+<div id="dropdown-container">
+  <label for="select-min-hours">Select a Task:</label>
+  <select id="select-min-hours">
+    <option value="" disabled selected>Select a task</option>
+  </select>
+</div>
+
+<div id="form-container" style="display: none">
+  <form id="task-form">
+    <div id="time-container" style="display: none">
+      <label for="start-date-time">Start Date/Time:</label>
+      <input
+        type="datetime-local"
+        id="start-date-time"
+        name="start-date-time"
+      /><br /><br />
+
+      <label for="end-date-time">End Date/Time:</label>
+      <input
+        type="datetime-local"
+        id="end-date-time"
+        name="end-date-time"
+      /><br /><br />
+    </div>
+
+    <!-- Additional field for Collateral Duty -->
+    <div id="description-container" style="display: none">
+      <label for="description">Description:</label>
+      <input type="text" id="description" name="description" /><br /><br />
+    </div>
+
+    <div id="date-container" style="display: none">
+      <label for="date-picker">Select a Date:</label>
+      <input type="date" id="date-picker" name="date-picker" /><br /><br />
+    </div>
+
+    <input type="submit" value="Submit" />
+  </form>
+</div>
+
+{% endblock page_content %}
