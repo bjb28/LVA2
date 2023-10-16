@@ -1,4 +1,9 @@
 --requirement requirements-test.txt
+black
+coverage
+coveralls
+flake8
 ipython
 mypy
+pre-commit
 semver
