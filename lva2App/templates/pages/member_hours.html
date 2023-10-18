@@ -16,6 +16,7 @@
     <div id="members-container" class="col-md-4 rounded shadow p-3 mb-4">
       <p id="member-header" class="text-center h3"></p>
       <p id="month-year" class="text-center h4"></p>
+      <p id="month-buttons" class="text-center h4"></p>
     </div>
 
     <div class="row justify-content-center">
@@ -588,28 +589,54 @@
 
     // Set the Month
     var month_year = document.getElementById('month-year');
+    var month_buttons = document.getElementById(`month-buttons`);
     // if the month is blank, this statment will be false so it reaches the else.
     var months = [
         "January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
       ];
+      var month_int;
+      var year_int;
+      var months_link;
 
     if ({% if month %} true {% else %} false {% endif %}) {
-      var month_in = parseInt(' {{month}}') - 1;
-      month_year.innerHTML = months[month_in];
+      month_int = parseInt(' {{month}}') - 1;
     } else {
-      var currentDate = new Date();
-      month_year.innerHTML = months[currentDate.getMonth()];
+      month_int = new Date().getMonth();
     }
+
 
     // Set the Year
     // if the month is blank, this statment will be false so it reaches the else.
     if ({% if year %} true {% else %} false {% endif %}) {
-      month_year.innerHTML += ` {{ year }}`;
+      year_int = parseInt(`{{ year }}`);
     } else {
-      var currentDate = new Date();
-      month_year.innerHTML += ` ${currentDate.getFullYear()}`;
+      year_int = new Date().getFullYear();
     }
+
+
+    month_year.innerHTML = `${months[month_int]} ${year_int}`;
+
+    console.log(`${month_int} ${new Date().getMonth()}`)
+
+    // Create the next/previous links
+    if (month_int === new Date().getMonth()) {
+      // If its current month, only show previous.
+      month_int += 1;
+      var previous_month_int = month_int === 1 ? 12 : month_int === 12 ? 1 : month_int - 1;
+      var previous_year_int = month_int === 1 ? year_int - 1 : year_int;
+      month_buttons.innerHTML = `<a class="btn btn-primary btn-sm" href="http://127.0.0.1:8000/member-hour/${memberData.badge_num}/${previous_year_int}/${previous_month_int}">Previous</a>`;
+    } else {
+      month_int += 1;
+      var previous_month_int = month_int === 1 ? 12 : month_int > 12 ? 1 : month_int - 1;
+      var previous_year_int = month_int === 1 ? year_int - 1 : year_int;
+      var previous_url = `<a class="btn btn-primary btn-sm" href="http://127.0.0.1:8000/member-hour/${memberData.badge_num}/${previous_year_int}/${previous_month_int}">Previous</a>`;
+      var next_month_int = month_int === 12 ? 1 : month_int == 1 ? 12 : month_int + 1;
+      var next_year_int = month_int === 12 ? year_int + 1 : year_int;
+      var next_url = `<a class="btn btn-primary btn-sm" href="http://127.0.0.1:8000/member-hour/${memberData.badge_num}/${next_year_int}/${next_month_int}">Next</a>`;
+      month_buttons.innerHTML = `${previous_url} ${next_url}`;
+    }
+
     fillMemberHoursTable()
   }
 
