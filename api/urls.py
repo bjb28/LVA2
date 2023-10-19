@@ -35,12 +35,12 @@ urlpatterns = [
     path(
         "api/losap-hours/<int:year>/",
         LosapHoursViewSet.as_view({"get": "list"}),
-        name="losap-hours",
+        name="losap-hours-year",
     ),
     path(
         "api/losap-hours/<int:year>/<int:month>/",
         LosapHoursViewSet.as_view({"get": "list"}),
-        name="losap-hours",
+        name="losap-hours-month",
     ),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
 ]
