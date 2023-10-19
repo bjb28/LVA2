@@ -9,6 +9,7 @@ from .views import (
     CommitteeViewSet,
     CourseCodeViewSet,
     HourTypeViewSet,
+    LosapHoursViewSet,
     MemberViewSet,
     RankViewSet,
     SleepInViewSet,
@@ -22,6 +23,7 @@ router.register(r"collateral-duty", CollateralDutyViewSet)
 router.register(r"committee", CommitteeViewSet)
 router.register(r"course-code", CourseCodeViewSet)
 router.register(r"hour-type", HourTypeViewSet)
+router.register(r"losap-hours", LosapHoursViewSet, basename="losap_hours")
 router.register(r"member", MemberViewSet)
 router.register(r"rank", RankViewSet)
 router.register(r"sleep-in", SleepInViewSet)
