@@ -32,5 +32,15 @@ router.register(r"unit", UnitViewSet)
 
 urlpatterns = [
     path("api/", include(router.urls)),
+    path(
+        "api/losap-hours/<int:year>/",
+        LosapHoursViewSet.as_view({"get": "list"}),
+        name="losap-hours",
+    ),
+    path(
+        "api/losap-hours/<int:year>/<int:month>/",
+        LosapHoursViewSet.as_view({"get": "list"}),
+        name="losap-hours",
+    ),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
 ]

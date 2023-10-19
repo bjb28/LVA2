@@ -112,24 +112,15 @@ class HourTypeViewSet(viewsets.ModelViewSet):
     serializer_class = HourTypeSerializer
 
 
-class LosapHoursViewSet(viewsets.ModelViewSet):
+class LosapHoursViewSet(viewsets.ViewSet):
     """View Set for returning all Losap Hours."""
 
-    def list(self, request):
+    def list(self, requests, year="", month=""):
         """Return all members hours.
 
         Call with: /api/losap_hours/?month=<>&year=<>
         """
         timezone.activate(settings.TIME_ZONE)
-
-        month = request.query_params.get("month")
-        year = request.query_params.get("year")
-
-        # If month and year are not provided, use the current month and year
-        if not month and not year:
-            current_datetime = timezone.now()
-            month = current_datetime.strftime("%m")
-            year = current_datetime.strftime("%Y")
 
         # Holds all the members' hours
         members_hours = list()
@@ -144,22 +135,46 @@ class LosapHoursViewSet(viewsets.ModelViewSet):
             if month and year:
                 first_day = timezone.make_aware(datetime(int(year), int(month), 1))
                 last_day = first_day + relativedelta(months=1, days=-1)
+
+                standby_hours = StandBy.objects.filter(
+                    query_standby,
+                    start_time__range=(first_day, last_day),
+                    losap_valid=True,
+                ).count()
+                collateralduty_hours = CollateralDuty.objects.filter(
+                    query_collateralduty,
+                    start_time__range=(first_day, last_day),
+                    losap_valid=True,
+                ).count()
+                sleepin_hours = SleepIn.objects.filter(
+                    query_sleepin, date__range=(first_day, last_day)
+                ).count()
             elif year:
                 first_day = timezone.make_aware(datetime(int(year), 1, 1))
                 last_day = first_day + relativedelta(years=1, days=-1)
 
-            # Use reverse relationships to get a count of losap valid hours
-            standby_hours = StandBy.objects.filter(
-                query_standby, start_time__range=(first_day, last_day), losap_valid=True
-            ).count()
-            collateralduty_hours = CollateralDuty.objects.filter(
-                query_collateralduty,
-                start_time__range=(first_day, last_day),
-                losap_valid=True,
-            ).count()
-            sleepin_hours = SleepIn.objects.filter(
-                query_sleepin, date__range=(first_day, last_day)
-            ).count()
+                standby_hours = StandBy.objects.filter(
+                    query_standby,
+                    start_time__range=(first_day, last_day),
+                    losap_valid=True,
+                ).count()
+                collateralduty_hours = CollateralDuty.objects.filter(
+                    query_collateralduty,
+                    start_time__range=(first_day, last_day),
+                    losap_valid=True,
+                ).count()
+                sleepin_hours = SleepIn.objects.filter(
+                    query_sleepin, date__range=(first_day, last_day)
+                ).count()
+            else:
+                standby_hours = StandBy.objects.filter(
+                    query_standby, losap_valid=True
+                ).count()
+                collateralduty_hours = CollateralDuty.objects.filter(
+                    query_collateralduty,
+                    losap_valid=True,
+                ).count()
+                sleepin_hours = SleepIn.objects.filter(query_sleepin).count()
 
             members_hours.append(
                 {
