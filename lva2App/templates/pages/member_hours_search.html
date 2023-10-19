@@ -45,7 +45,7 @@
     // Check if the search term has at least 3 characters
     if (searchTerm.length >= 3) {
       // Fetch data from the API
-      fetch(`http://127.0.0.1:8000/api/member/?search=${searchTerm}`)
+      fetch(`/api/member/?search=${searchTerm}`)
         .then((response) => response.json())
         .then((data) => {
           // Clear previous search results
@@ -55,7 +55,7 @@
           data.forEach((member) => {
             // Create a link element
             const link = document.createElement("a");
-            link.href = `http://127.0.0.1:8000/member-hour/${member.badge_num}`;
+            link.href = `/member-hour/${member.badge_num}`;
             link.textContent = `${member.first_name} ${member.last_name} (#${member.badge_num})`;
 
             // Create an li element and append the link to it

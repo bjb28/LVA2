@@ -183,7 +183,7 @@
   let memberHours = null;
 
   async function getHourType() {
-      var url = 'http://127.0.0.1:8000/api/hour-type';
+      var url = '/api/hour-type';
 
       try {
           const response = await fetch(url);
@@ -195,7 +195,7 @@
   }
 
   async function getCommittee() {
-      var url = 'http://127.0.0.1:8000/api/committee';
+      var url = '/api/committee';
 
       try {
           const response = await fetch(url);
@@ -207,7 +207,7 @@
   }
 
   async function getMember() {
-                    var url = `http://127.0.0.1:8000/api/member/{{ badge_num }}/`
+                    var url = `/api/member/{{ badge_num }}/`
 
                     try {
                         const response = await fetch(url);
@@ -219,7 +219,7 @@
                 }
 
   async function getMemberHours(year="", month="") {
-                  var url = `http://127.0.0.1:8000/api/member/{{ badge_num }}/get_hours/?month=${month}&year=${year}`
+                  var url = `/api/member/{{ badge_num }}/get_hours/?month=${month}&year=${year}`
                   try {
                       const response = await fetch(url);
                       const data = await response.json();
@@ -353,7 +353,7 @@
           errorContainer.innerHTML = "";
 
           // Perform a POST request with the form data as JSON to the selected URL
-          fetch(`http://127.0.0.1:8000/api/${selectedTask.toLowerCase().replace(/ /g, "-")}/`, {
+          fetch(`/api/${selectedTask.toLowerCase().replace(/ /g, "-")}/`, {
               method: "POST",
               headers: {
                   "Content-Type": "application/json",
@@ -495,7 +495,7 @@
   const standByList = document.createElement("ul");
   entry.standBy.forEach((standByEntry) => {
   const listItem = document.createElement("li");
-  listItem.innerHTML = `${standByEntry.time} <a href="http://127.0.0.1:8000/api/standby/${standByEntry.id}" class="delete-link" data-type="standby" data-id="${standByEntry.id}">(Delete)</a>`;
+  listItem.innerHTML = `${standByEntry.time} <a href="/api/standby/${standByEntry.id}" class="delete-link" data-type="standby" data-id="${standByEntry.id}">(Delete)</a>`;
   standByList.appendChild(listItem);
   });
   standByCell.appendChild(standByList);
@@ -507,7 +507,7 @@
   const collateralDutyList = document.createElement("ul");
   entry.collateralDuty.forEach((collateralDutyEntry) => {
   const listItem = document.createElement("li");
-  listItem.innerHTML = `${collateralDutyEntry.time} <a href="http://127.0.0.1:8000/api/collateralduty/${collateralDutyEntry.id}" class="delete-link" data-type="collateralduty" data-id="${collateralDutyEntry.id}">(Delete)</a>`;
+  listItem.innerHTML = `${collateralDutyEntry.time} <a href="/api/collateralduty/${collateralDutyEntry.id}" class="delete-link" data-type="collateralduty" data-id="${collateralDutyEntry.id}">(Delete)</a>`;
   collateralDutyList.appendChild(listItem);
   });
   collateralDutyCell.appendChild(collateralDutyList);
@@ -516,7 +516,7 @@
   // Create a delete link for Sleep In entries
   if (entry.sleepIn === 'Yes') {
   sleepInCell.classList.add("action-cell");
-  sleepInCell.innerHTML = `Yes <a href="http://127.0.0.1:8000/api/sleepin/${entry.id}" class="delete-link" data-type="sleepin" data-id="${entry.id}">(Delete)</a>`;
+  sleepInCell.innerHTML = `Yes <a href="/api/sleepin/${entry.id}" class="delete-link" data-type="sleepin" data-id="${entry.id}">(Delete)</a>`;
   } else {
   sleepInCell.textContent = entry.sleepIn;
   }
@@ -546,7 +546,7 @@
 
   function deleteEntry(type, id) {
   // Perform the DELETE request using type and id
-  const url = `http://127.0.0.1:8000/api/${type}/${id}`;
+  const url = `/api/${type}/${id}`;
   fetch(url, {
     method: "DELETE",
   })
@@ -625,15 +625,15 @@
       month_int += 1;
       var previous_month_int = month_int === 1 ? 12 : month_int === 12 ? 1 : month_int - 1;
       var previous_year_int = month_int === 1 ? year_int - 1 : year_int;
-      month_buttons.innerHTML = `<a class="btn btn-primary btn-sm" href="http://127.0.0.1:8000/member-hour/${memberData.badge_num}/${previous_year_int}/${previous_month_int}">Previous</a>`;
+      month_buttons.innerHTML = `<a class="btn btn-primary btn-sm" href="/member-hour/${memberData.badge_num}/${previous_year_int}/${previous_month_int}">Previous</a>`;
     } else {
       month_int += 1;
       var previous_month_int = month_int === 1 ? 12 : month_int > 12 ? 1 : month_int - 1;
       var previous_year_int = month_int === 1 ? year_int - 1 : year_int;
-      var previous_url = `<a class="btn btn-primary btn-sm" href="http://127.0.0.1:8000/member-hour/${memberData.badge_num}/${previous_year_int}/${previous_month_int}">Previous</a>`;
+      var previous_url = `<a class="btn btn-primary btn-sm" href="/member-hour/${memberData.badge_num}/${previous_year_int}/${previous_month_int}">Previous</a>`;
       var next_month_int = month_int === 12 ? 1 : month_int == 1 ? 12 : month_int + 1;
       var next_year_int = month_int === 12 ? year_int + 1 : year_int;
-      var next_url = `<a class="btn btn-primary btn-sm" href="http://127.0.0.1:8000/member-hour/${memberData.badge_num}/${next_year_int}/${next_month_int}">Next</a>`;
+      var next_url = `<a class="btn btn-primary btn-sm" href="/member-hour/${memberData.badge_num}/${next_year_int}/${next_month_int}">Next</a>`;
       month_buttons.innerHTML = `${previous_url} ${next_url}`;
     }
 
