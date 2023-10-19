@@ -1,0 +1,205 @@
+<!-- lva2App/templates/pages/member_hours.html -->
+
+{% extends "base.html" %} {% load static %} {% block page_content %}
+
+<!-- Sets the Active tab-->
+<script src="{% static 'navbar-active.js' %}"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Call setActiveNavItem here to set the initial active navbar item.
+    setActiveNavItem("navbar-losap-hours");
+  });
+</script>
+
+<div class="container justify-content-center">
+  <!--Page Label-->
+  <div class="row justify-content-center">
+    <div id="header-container" class="col-md-4 rounded shadow p-3 mb-4">
+      <p id="month-year" class="text-center h3"></p>
+      <form id="time-frame-form" class="form">
+        <div class="row">
+          <div class="col-md-6">
+            <label for="year">Year</label>
+            <input
+              type="text"
+              class="form-control"
+              id="year"
+              placeholder="Enter Year"
+              {%
+              if
+              year
+              %}
+              value="{{ year }}"
+              {%
+              endif
+              %}
+            />
+          </div>
+          <div class="col-md-6">
+            <label for="month">Month</label>
+            <select id="month" class="form-control">
+              <option value="">Select Month</option>
+              <option value="1">January</option>
+              <option value="2">February</option>
+              <option value="3">March</option>
+              <option value="4">April</option>
+              <option value="5">May</option>
+              <option value="6">June</option>
+              <option value="7">July</option>
+              <option value="8">August</option>
+              <option value="9">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" id="load-button" class="btn btn-primary">
+          Load
+        </button>
+        <button type="button" id="clear-button" class="btn btn-primary">
+          Clear
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!--Data Table-->
+  <div class="row justify-content-center">
+    <div id="input-container" class="col-md-4 rounded shadow p-3">
+      <table id="member-hours-table" class="table table-striped">
+        <thead>
+          <tr>
+            <th>Member</th>
+            <th>Collateral Duty</th>
+            <th>Sleep In</th>
+            <th>Standby</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Table rows will be added here using JavaScript -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Gets All Members hours.
+  async function getLosapHours(year="", month=""){
+    var url = `/api/losap-hours/${year ? year + '/' : ''}${month ? month + '/' : ''}`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        return data['members_hours'];
+    } catch (error) {
+        console.log(error);
+    }
+  }
+
+  // Sets the Time frame on the header.
+  function setTimeFrame(year_int, month_int){
+    var month_year = document.getElementById('month-year');
+
+    var months = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+
+    // Sets the header.
+    if (!month_int && !year_int) {
+      month_year.innerHTML = "All LOSAP Hours";
+    } else if ( !month_int && year_int) {
+      month_year.innerHTML = `${year_int} LOSAP Hours`;
+    } else {
+      month_year.innerHTML = `${months[month_int - 1 ]} ${year_int} LOSAP Hours`;
+    }
+  }
+
+  async function fillTable(year_int, month_int) {
+    const tableBody = document.querySelector("#member-hours-table tbody");
+    let data;
+
+    try{
+      if (!month_int && !year_int) {
+        data = await getLosapHours(year_int);
+      } else if ( !month_int && year_int) {
+        data = await getLosapHours(year_int);
+      } else {
+        data = await getLosapHours(year_int, month_int);
+      }
+      data.forEach((memberData, index) => {
+        const row = document.createElement('tr');
+
+        row.innerHTML = `
+          <td>${memberData.member}</td>
+          <td>${memberData.collateralduty}</td>
+          <td>${memberData.sleepin}</td>
+          <td>${memberData.standby}</td>
+        `;
+
+        tableBody.appendChild(row);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  function inputTimeFrame(){
+    // Get references to the buttons
+    const timeFrameForm = document.getElementById("time-frame-form");
+    const clearButton = document.getElementById("clear-button");
+
+
+    // Add a click event listener to the button
+    timeFrameForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const yearInput = document.getElementById("year");
+      const monthSelect = document.getElementById("month");
+
+      const selectedYear = yearInput.value;
+      const selectedMonth = monthSelect.value;
+
+      // Construct the URL based on the selected year and month if they are provided
+      const url = `/losap-hours/${selectedYear ? selectedYear + '/' : ''}${selectedMonth ? selectedMonth : ''}`
+
+      // Perform the desired action, e.g., navigate to the constructed URL
+      window.location.href = url;
+    });
+
+    clearButton.addEventListener("click", function (e) {
+
+      const url = `/losap-hours`
+
+      window.location.href = url;
+    });
+  }
+
+  var month_int;
+  var year_int;
+  // Sets the month integer
+  if ({% if month %} true {% else %} false {% endif %}) {
+    month_int = parseInt(' {{month}}');
+
+    // Causes the correct month to be selected in the drop down.
+    const monthSelect = document.getElementById("month");
+
+    for (let i = 0; i < monthSelect.options.length; i++) {
+      if (monthSelect.options[i].value === "{{ month }}") {
+        monthSelect.options[i].selected = true;
+        break;
+      }
+    }
+  }
+
+  // Sets the year integer
+  if ({% if year %} true {% else %} false {% endif %}) {
+    year_int = parseInt(`{{ year }}`);
+  }
+
+  setTimeFrame(year_int, month_int);
+  fillTable(year_int, month_int);
+  inputTimeFrame();
+</script>
+{% endblock page_content %}

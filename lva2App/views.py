@@ -8,6 +8,14 @@ def home(request):
     return render(request, "pages/home.html", {})
 
 
+def losapHoursView(request, year="", month=""):
+    """Display the LOSAP Hours Report."""
+
+    context = {"year": year, "month": month}
+
+    return render(request, "pages/losap_hours.html", context)
+
+
 def memberHourView(request, badge_number, year="", month=""):
     """Display the Member's page for hours tracking."""
 
