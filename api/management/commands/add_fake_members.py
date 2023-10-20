@@ -49,7 +49,7 @@ class Command(BaseCommand):
         members = []
 
         for _ in range(num_members):
-            badge_num = random.randint(500000, 510000)
+            badge_num = random.randint(505000, 505999)
             first_name = fake.first_name()
             last_name = fake.last_name()
             rank = random.choice(ranks)  # Choose a random rank instance
