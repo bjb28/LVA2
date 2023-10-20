@@ -5,6 +5,7 @@ import random
 
 # Third-Party Libraries
 from django.core.management.base import BaseCommand
+from django.db import IntegrityError
 from faker import Faker
 
 # Custom Libraries
@@ -49,27 +50,45 @@ class Command(BaseCommand):
         members = []
 
         for _ in range(num_members):
-            badge_num = random.randint(505000, 505999)
-            first_name = fake.first_name()
-            last_name = fake.last_name()
-            rank = random.choice(ranks)  # Choose a random rank instance
+            # Attempt to create a member, and if a duplicate badge number error occurs, add one to the badge number
+            while True:
+                badge_num = random.randint(505000, 505999)
+                first_name = fake.first_name()
+                last_name = fake.last_name()
+                rank = random.choice(ranks)  # Choose a random rank instance
 
-            created_date = fake.date_time_between_dates(
-                datetime(2021, 6, 1), datetime.today() - timedelta(days=1)
-            )
-            updated_date = fake.date_time_between_dates(created_date, datetime.today())
+                created_date = fake.date_time_between_dates(
+                    datetime(2021, 6, 1), datetime.today() - timedelta(days=1)
+                )
+                updated_date = fake.date_time_between_dates(
+                    created_date, datetime.today()
+                )
 
-            member = Member(
-                badge_num=badge_num,
-                created=created_date,
-                first_name=first_name,
-                last_name=last_name,
-                rank=rank,
-                updated=updated_date,
-            )
-            members.append(member)
+                try:
+                    member = Member(
+                        badge_num=badge_num,
+                        created=created_date,
+                        first_name=first_name,
+                        last_name=last_name,
+                        rank=rank,
+                        updated=updated_date,
+                    )
+                    member.save()
+                    members.append(member)
+                    break  # Break the loop if member creation is successful
 
-        Member.objects.bulk_create(members)
+                except IntegrityError as e:
+                    if "Duplicate entry" in str(e):
+                        # Increment the badge number and try again
+                        badge_num += 1
+                        continue
+                    else:
+                        # Handle other IntegrityError exceptions if necessary
+                        self.stdout.write(
+                            self.style.ERROR(f"An error occurred: {str(e)}")
+                        )
+                        break
+
         self.stdout.write(
-            self.style.SUCCESS(f"Added {num_members} fake members to the database.")
+            self.style.SUCCESS(f"Added {len(members)} fake members to the database.")
         )
