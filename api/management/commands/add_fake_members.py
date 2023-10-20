@@ -2,6 +2,7 @@
 # Standard Python Libraries
 from datetime import datetime, timedelta
 import random
+import warnings
 
 # Third-Party Libraries
 from django.core.management.base import BaseCommand
@@ -12,6 +13,11 @@ from faker import Faker
 from api.models import Member, Rank
 
 fake = Faker()
+
+# Filter out the warning about time zone support.
+warnings.filterwarnings(
+    "ignore", category=RuntimeWarning, module="django.db.models.fields"
+)
 
 
 class Command(BaseCommand):
