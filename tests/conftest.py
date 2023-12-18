@@ -9,11 +9,12 @@ from api.models import Address, Member, Rank
 
 """ Project Fixtures """
 
-@pytest.fixture(scope='session')
+
+@pytest.fixture(scope="session")
 def set_test_time_zone():
     """Set TIME_ZONE to 'UTC' (Zulu) for the entire test session."""
     original_time_zone = settings.TIME_ZONE
-    settings.TIME_ZONE = 'UTC'
+    settings.TIME_ZONE = "UTC"
     yield
     # Restore the original TIME_ZONE after the test session
     settings.TIME_ZONE = original_time_zone

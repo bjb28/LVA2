@@ -7,7 +7,7 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.db.models import Q
 from django.utils import timezone
-from rest_framework import filters, status, serializers, viewsets
+from rest_framework import filters, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -373,9 +373,13 @@ class TrainingReportViewSet(viewsets.ModelViewSet):
                 return self.invalid_request("Invalid date_type")
 
             # Apply ordering based on date_type
-            queryset = queryset.order_by("sub_date" if date_type == "submission" else "training_data")
+            queryset = queryset.order_by(
+                "sub_date" if date_type == "submission" else "training_data"
+            )
         elif month or year:
-            return self.invalid_request("date_type is required when month and/or year is provided")
+            return self.invalid_request(
+                "date_type is required when month and/or year is provided"
+            )
 
         # Filter by month and year if provided
         if month and year:

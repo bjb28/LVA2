@@ -19,5 +19,12 @@
     },
     "model": "api.hourtype",
     "pk": "Stand By"
+  },
+  {
+    "fields": {
+      "min_hours": 2
+    },
+    "model": "api.hourtype",
+    "pk": "Training"
   }
 ]

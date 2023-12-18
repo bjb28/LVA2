@@ -205,7 +205,17 @@ class TrainingReportSerializer(serializers.HyperlinkedModelSerializer):
         """Meta class for Training Report Serializer."""
 
         model = TrainingReport
-        fields = ["id", "training_date", "sub_date", "course_code", "certified", "num_hours", "description", "losap_valid", "type"]
+        fields = [
+            "id",
+            "training_date",
+            "sub_date",
+            "course_code",
+            "certified",
+            "num_hours",
+            "description",
+            "losap_valid",
+            "type",
+        ]
 
     def create(self, validated_data):
         """Override Create to ensure Models clean is run."""

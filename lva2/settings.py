@@ -153,5 +153,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 TEST = {
-    'TIME_ZONE': 'UTC',  # Set the TIME_ZONE to 'UTC' (Zulu)
+    "TIME_ZONE": "UTC",  # Set the TIME_ZONE to 'UTC' (Zulu)
 }

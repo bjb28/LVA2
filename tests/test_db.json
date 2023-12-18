@@ -77,30 +77,31 @@
     "pk": "Training"
   },
   {
-    "model": "api.trainingreport", 
-    "pk": 1, 
     "fields": {
-      "training_date": "2023-10-27T15:54:03Z", 
-      "sub_date": "2023-10-27T15:00:20Z", 
-      "course_code": "MFF1", 
-      "certified": true, 
-      "num_hours": 2.0, 
-      "description": "Firefighter 1", 
-      "losap_valid": true, 
-      "type": "Training"}
+      "certified": true,
+      "course_code": "MFF1",
+      "description": "Firefighter 1",
+      "losap_valid": true,
+      "num_hours": 2.0,
+      "sub_date": "2023-10-27T15:00:20Z",
+      "training_date": "2023-10-27T15:54:03Z",
+      "type": "Training"
     },
-    {
-      "model": "api.coursecode", 
-      "pk": "MFF1", 
-      "fields": {
-        "name": "Firefighter 1"
-      }
+    "model": "api.trainingreport",
+    "pk": 1
+  },
+  {
+    "fields": {
+      "name": "Firefighter 1"
     },
-    {
-      "model": "api.membertrainingreport",
-      "fields": {
-        "member": 12345,
-        "training_report": 1
-      }
-    }
+    "model": "api.coursecode",
+    "pk": "MFF1"
+  },
+  {
+    "fields": {
+      "member": 12345,
+      "training_report": 1
+    },
+    "model": "api.membertrainingreport"
+  }
 ]

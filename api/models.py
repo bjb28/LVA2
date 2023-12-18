@@ -496,9 +496,8 @@ class MemberTrainingReport(models.Model):
         The combination of training_report and member is unique.
 
     """
-    member = models.ForeignKey(
-        "Member", models.CASCADE, db_column="Member"
-    )
+
+    member = models.ForeignKey("Member", models.CASCADE, db_column="Member")
     training_report = models.ForeignKey(
         "TrainingReport", models.CASCADE, db_column="TrainingReport"
     )
@@ -510,7 +509,6 @@ class MemberTrainingReport(models.Model):
         verbose_name = "Member Training Report"
         unique_together = ["training_report", "member"]
         ordering = ["training_report", "member"]
-
 
     def __str__(self):
         """Return a string representation of a member training report."""
