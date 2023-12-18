@@ -473,7 +473,7 @@ class MemberTrainingReport(models.Model):
         models.Model: The base class for all Django models.
 
     Attributes:
-        badge_num (models.OneToOneField): The member's badge number (Primary Key).
+        member (models.ForeignKey): The member object.
         training_report (models.ForeignKey): The associated training report (TrainingReport).
 
     Meta:
@@ -486,19 +486,18 @@ class MemberTrainingReport(models.Model):
 
         ```python
         member_training_report = MemberTrainingReport.objects.create(
-            badge_num=member_instance,
+            member=member_instance,
             training_report=training_report_instance
         )
         ```
 
     Note:
         This model represents a link between members and their associated training reports.
-        The combination of training_report and badge_num is unique.
+        The combination of training_report and member is unique.
 
     """
-
-    badge_num = models.OneToOneField(
-        "Member", models.CASCADE, db_column="BadgeNum", primary_key=True
+    member = models.ForeignKey(
+        "Member", models.CASCADE, db_column="Member"
     )
     training_report = models.ForeignKey(
         "TrainingReport", models.CASCADE, db_column="TrainingReport"
@@ -508,10 +507,19 @@ class MemberTrainingReport(models.Model):
         """Meta data of Member Training Report."""
 
         db_table = "MemberTrainingReport"
-        models.UniqueConstraint(
-            fields=["training_report", "badge_num"], name="unique_training_report"
+        verbose_name = "Member Training Report"
+        unique_together = ["training_report", "member"]
+        ordering = ["training_report", "member"]
+
+
+    def __str__(self):
+        """Return a string representation of a member training report."""
+        return (
+            f"{type(self)._meta.verbose_name}: {self.training_report.course_code.pk}"
+            + f" {self.training_report.num_hours} hrs -"
+            + f" {self.training_report.training_date.strftime('%Y-%m-%d')}"
+            + f" - {self.member.badge_num}"
         )
-        ordering = ["training_report", "badge_num"]
 
 
 class Member(models.Model):
@@ -677,7 +685,11 @@ class SleepIn(models.Model):
             hour=6, minute=59, tzinfo=pytz.timezone(settings.TIME_ZONE)
         ) + timedelta(days=1)
 
-        if SleepIn.objects.filter(badge_num=self.badge_num, date=self.date).count():
+        if (
+            SleepIn.objects.filter(badge_num=self.badge_num, date=self.date)
+            .exclude(pk=self.pk)
+            .count()
+        ):
             raise ValidationError(
                 {
                     "message": (
@@ -810,7 +822,7 @@ class StandBy(models.Model):
         super().save(*args, **kwargs)
 
     def clean(self):
-        """Validate Sleep In does not overlap with other entities."""
+        """Validate Stand By does not overlap with other entities."""
         for sleepIn in SleepIn.objects.filter(badge_num=self.badge_num):
             sleepIn_start_time = datetime(
                 sleepIn.date.year, sleepIn.date.month, sleepIn.date.day
@@ -911,13 +923,14 @@ class TrainingReport(models.Model):
         models.Model: The base class for all Django models.
 
     Attributes:
-        id (models.IntegerField): The primary key of the training report.
         training_date (models.DateTimeField): The date of the training.
         sub_date (models.DateTimeField): The submission date of the training report.
         course_code (models.ForeignKey): The code of the course associated with the report (CourseCode).
         certified (models.BooleanField): Indicates whether the report is certified.
         num_hours (models.FloatField): The number of hours of training.
         description (models.CharField): A brief description of the training.
+        losap_valid (models.BooleanField): Indicates if the duty counts for LOSAP.
+        type (models.ForeignKey): The type of hours to check LOSAP requirements. (HourType).
 
     Meta:
         db_table (str): The name of the database table for this model.
@@ -939,19 +952,41 @@ class TrainingReport(models.Model):
 
     """
 
-    id = models.IntegerField(primary_key=True)
+    # TODO Add attachement for certified.
     training_date = models.DateTimeField(db_column="TrainingDate")
     sub_date = models.DateTimeField(db_column="SubDate")
     course_code = models.ForeignKey(CourseCode, models.RESTRICT, db_column="CourseCode")
     certified = models.BooleanField(db_column="Certified")
     num_hours = models.FloatField(db_column="numHours")
     description = models.CharField(db_column="Description", max_length=50)
+    losap_valid = models.BooleanField(db_column="LOSAPValid", default=False)
+    type = models.ForeignKey(
+        "HourType", on_delete=models.RESTRICT, db_column="Type", default="Training"
+    )
 
     class Meta:
         """Meta data of Training Report."""
 
         db_table = "TrainingReport"
         verbose_name = "Training Report"
+
+    def __str__(self):
+        """Return a string representation of a Training Report."""
+        return (
+            f"{type(self)._meta.verbose_name}: {self.pk} - {self.course_code.pk}"
+            + f" {self.num_hours} hrs -"
+            + f" {self.training_date.strftime('%Y-%m-%d')}"
+        )
+
+    def save(self, *args, **kwargs):
+        """Save to check if the training hours count for LOSAP."""
+
+        if self.num_hours >= self.type.min_hours:
+            self.losap_valid = True
+        else:
+            self.losap_valid = False
+
+        super().save(*args, **kwargs)
 
 
 class UnitResponse(models.Model):

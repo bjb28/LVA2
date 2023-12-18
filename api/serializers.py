@@ -13,6 +13,7 @@ from .models import (
     Rank,
     SleepIn,
     StandBy,
+    TrainingReport,
     Unit,
 )
 
@@ -195,6 +196,36 @@ class StandBySerializer(serializers.HyperlinkedModelSerializer):
         instance.clean()
         instance.save()
         return instance
+
+
+class TrainingReportSerializer(serializers.HyperlinkedModelSerializer):
+    """Serializer for Training Report."""
+
+    class Meta:
+        """Meta class for Training Report Serializer."""
+
+        model = TrainingReport
+        fields = ["id", "training_date", "sub_date", "course_code", "certified", "num_hours", "description", "losap_valid", "type"]
+
+    def create(self, validated_data):
+        """Override Create to ensure Models clean is run."""
+        try:
+            instance = TrainingReport(**validated_data)
+            instance.clean()
+            instance.save()
+
+            return instance
+
+        except ValidationError as e:
+            raise e
+
+    def update(self, instance, validate_data):
+        """Override Update to ensure MOdels clean is run."""
+        for attr, value in validate_data.items():
+            setattr(instance, attr, value)
+
+        instance.clean()
+        instance.save()
 
 
 class UnitSerializer(serializers.HyperlinkedModelSerializer):

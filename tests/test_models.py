@@ -6,11 +6,22 @@
 from datetime import datetime
 
 # Third-Party Libraries
+from django.db.utils import IntegrityError
 import pytest
 from rest_framework.serializers import ValidationError
 
 # Custom Libraries
-from api.models import Address, CollateralDuty, Member, SleepIn, StandBy
+from api.models import (
+    Address,
+    CollateralDuty,
+    CourseCode,
+    HourType,
+    Member,
+    MemberTrainingReport,
+    SleepIn,
+    StandBy,
+    TrainingReport,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -171,6 +182,50 @@ class TestCollateralDuty:
 
 
 @pytest.mark.django_db
+class TestMemberTrainingReport:
+    """Test Member Training Report Model"""
+
+    pytestmark = pytest.mark.django_db
+
+    def test_str(self):
+        """Test proper str output."""
+        assert (
+            str(MemberTrainingReport.objects.first())
+            == "Member Training Report: MFF1 2.0 hrs - 2023-10-27 - 12345"
+        )
+
+    def test_duplicate(self):
+        """Test duplication prevention."""
+        memberTrainingReport_obj = MemberTrainingReport(
+            member=Member.objects.filter(badge_num=12345).first(),
+            training_report=TrainingReport.objects.filter(pk=1).first(),
+        )
+        with pytest.raises(IntegrityError):
+            memberTrainingReport_obj.save()
+
+    def test_new(self):
+        """Test adding new object."""
+        trainingReport_obj = TrainingReport(
+            training_date="2023-10-28T15:54:03Z",
+            sub_date="2023-10-28T15:00:20Z",
+            course_code=CourseCode.objects.filter(pk="MFF1").first(),
+            certified=True,
+            num_hours=2.0,
+            description="Firefighter 1",
+            type=HourType.objects.filter(pk="Training").first(),
+        )
+        trainingReport_obj.save()
+        trainingReport_obj = TrainingReport.objects.filter(pk=2).first()
+        memberTrainingReport_obj = MemberTrainingReport(
+            member=Member.objects.filter(badge_num=12345).first(),
+            training_report=trainingReport_obj,
+        )
+        memberTrainingReport_obj.save()
+
+        assert memberTrainingReport_obj.pk == 2
+
+
+@pytest.mark.django_db
 class TestMember:
     """Test Member model."""
 
@@ -187,6 +242,35 @@ class TestMember:
     def test_member_full_member(self, member_object):
         """Test proper string returned by full member method."""
         assert member_object.full_member() == "Doe, John(12345)"
+
+
+@pytest.mark.django_db
+class TestTrainingReport:
+    """Test Training Report Model"""
+
+    pytestmark = pytest.mark.django_db
+
+    def test_str(self):
+        """Test proper str output."""
+        assert (
+            str(TrainingReport.objects.first())
+            == "Training Report: 1 - MFF1 2.0 hrs - 2023-10-27"
+        )
+
+    @pytest.mark.parametrize(
+        "num_hours",
+        [
+            (1),
+            (0.5),
+            (1.5),
+        ],
+    )
+    def test_save_losap_true(self, num_hours):
+        """Test if losap_valid is false when less than min_hours."""
+        trainingReport_obj = TrainingReport.objects.first()
+        trainingReport_obj.num_hours = num_hours
+        trainingReport_obj.save()
+        assert trainingReport_obj.losap_valid is False
 
 
 @pytest.mark.django_db

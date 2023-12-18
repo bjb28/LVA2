@@ -1,5 +1,6 @@
 """LVA2 API Tests."""
 # Third-Party Libraries
+from django.conf import settings
 from django.core.management import call_command
 import pytest
 
@@ -8,9 +9,18 @@ from api.models import Address, Member, Rank
 
 """ Project Fixtures """
 
+@pytest.fixture(scope='session')
+def set_test_time_zone():
+    """Set TIME_ZONE to 'UTC' (Zulu) for the entire test session."""
+    original_time_zone = settings.TIME_ZONE
+    settings.TIME_ZONE = 'UTC'
+    yield
+    # Restore the original TIME_ZONE after the test session
+    settings.TIME_ZONE = original_time_zone
+
 
 @pytest.fixture(scope="session")
-def django_db_setup(django_db_setup, django_db_blocker):
+def django_db_setup(django_db_setup, django_db_blocker, set_test_time_zone):
     """Set up the django temp database."""
     with django_db_blocker.unblock():
         call_command("loaddata", "db/committee.json")

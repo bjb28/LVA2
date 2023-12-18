@@ -14,6 +14,7 @@ from .views import (
     RankViewSet,
     SleepInViewSet,
     StandByViewSet,
+    TrainingReportViewSet,
     UnitViewSet,
 )
 
@@ -28,6 +29,7 @@ router.register(r"member", MemberViewSet)
 router.register(r"rank", RankViewSet)
 router.register(r"sleep-in", SleepInViewSet)
 router.register(r"stand-by", StandByViewSet)
+router.register(r"training-report", TrainingReportViewSet)
 router.register(r"unit", UnitViewSet)
 
 urlpatterns = [

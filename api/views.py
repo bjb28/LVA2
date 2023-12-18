@@ -7,7 +7,7 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.db.models import Q
 from django.utils import timezone
-from rest_framework import filters, status, viewsets
+from rest_framework import filters, status, serializers, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -21,6 +21,7 @@ from .models import (
     Rank,
     SleepIn,
     StandBy,
+    TrainingReport,
     Unit,
 )
 from .serializers import (
@@ -34,6 +35,7 @@ from .serializers import (
     RankSerializer,
     SleepInSerializer,
     StandBySerializer,
+    TrainingReportSerializer,
     UnitSerializer,
 )
 
@@ -336,6 +338,53 @@ class StandByViewSet(viewsets.ModelViewSet):
         # Filter by badge_num if provided
         if badge_num:
             queryset = queryset.filter(badge_num=badge_num)
+
+        return queryset
+
+
+class TrainingReportViewSet(viewsets.ModelViewSet):
+    """View set for Training Report."""
+
+    search_fields = [
+        "^training_date",
+        "^course_code",
+        "^certified",
+        "^sub_date",
+    ]
+    filter_backends = (filters.SearchFilter,)
+    queryset = TrainingReport.objects.all().order_by("sub_date")
+    serializer_class = TrainingReportSerializer
+
+    def get_queryset(self):
+        """Allow for searching by year, and month, for the submission date or training date.
+
+        Example:
+        /?date_type=&month=&year=
+        """
+        queryset = TrainingReport.objects.all()
+
+        date_type = self.request.query_params.get("date_type")
+        month = self.request.query_params.get("month")
+        year = self.request.query_params.get("year")
+
+        # Check if date_type is provided and valid
+        if date_type:
+            if date_type not in ["submission", "training"]:
+                return self.invalid_request("Invalid date_type")
+
+            # Apply ordering based on date_type
+            queryset = queryset.order_by("sub_date" if date_type == "submission" else "training_data")
+        elif month or year:
+            return self.invalid_request("date_type is required when month and/or year is provided")
+
+        # Filter by month and year if provided
+        if month and year:
+            queryset = queryset.filter(start_time__month=month, start_time__year=year)
+        elif year:
+            queryset = queryset.filter(start_time__year=year)
+
+        # Filter by other search criteria if needed (e.g., course_code, certified)
+        # Note: You can add additional filtering here based on your requirements.
 
         return queryset
 
