@@ -1,0 +1,19 @@
+{
+    "python.pythonPath": "/usr/local/bin/python",
+    "_workbench.uiExtensions" : [ "peterjausovec.vscode-docker" ],
+    "python.jediEnabled": false,
+    "terminal.integrated.shell.linux": "/bin/bash",
+    "sqltools.connections": [{
+        "name": "Container database",
+        "driver": "mySQL",
+        "previewLimit": 50,
+        "server": "db",
+        "port": 3306,
+        "database": "LVA2",
+        "username": "admin",
+        "password": "OvfcLosap"
+    }],
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+      }
+}
