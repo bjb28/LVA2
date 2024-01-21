@@ -12,3 +12,6 @@ __pycache__
 *.egg-info
 *.vscode
 .DS_Store
+## Dev Containers
+db_data/*
+Python_files/*
