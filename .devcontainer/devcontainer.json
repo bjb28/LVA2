@@ -1,0 +1,16 @@
+{
+	"name": "Python 3 & mySQL",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "app",
+	"workspaceFolder": "/workspace",
+	"shutdownAction": "stopCompose",
+	"extensions": [
+		"github.vscode-pull-request-github",
+		"ms-python.python",
+		"VisualStudioExptTeam.vscodeintellicode",
+		"mtxr.sqltools",
+		"mtxr.sqltools-driver-mysql",
+		"ms-azuretools.vscode-docker",
+		"ms-python.black-formatter",
+	]
+}
